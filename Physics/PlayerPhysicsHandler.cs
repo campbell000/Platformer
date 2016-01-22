@@ -9,7 +9,7 @@ namespace PlatformerGame
 {
     public class PlayerPhysicsHandler
     {
-        public float xSpeedLimit = 1.2f;
+        public float xSpeedLimit = 0.6f;
         Player player;
 
         public PlayerPhysicsHandler(Player p)
@@ -23,10 +23,14 @@ namespace PlatformerGame
 			handleVerticalMovement();
         }
 
-        public void adjustPhysicsCalculations()
+        public void adjustHorizontalPhysicsCalculations()
+        {
+            player.vx = preventDrift(player.vx);
+        }
+
+        public void adjustVerticalPhysicsCalculations()
         {
             gravity();
-            player.vx = preventDrift(player.vx);
         }
 
         public void gravity()
@@ -45,14 +49,18 @@ namespace PlatformerGame
                 player.millisJumpHeld = 0;
                 player.jumpWasReleased = true;
             }
-            if (player.jumpWasReleased && !isInAir())
-                player.canJumpAgain = true;
-            if (player.currInputState.jumpWasPressed() && !isInAir() && player.canJumpAgain)
+
+            if (player.currInputState.jumpWasPressed())
+                Console.WriteLine("ASD");
+
+            if (player.currInputState.jumpWasPressed() && !isInAir())
             {
                 player.vy = player.JUMP_FORCE;
-                player.canJumpAgain = false;
+                player.isOnGround = false;
                 player.jumpWasReleased = false;
             }
+            else if (player.currInputState.jumpWasPressed())
+                Console.WriteLine("NOPE!");
 
             if (player.jumpWasReleased && isInAir() && player.vy < player.JUMP_FORCE/2)
             {
@@ -94,16 +102,16 @@ namespace PlatformerGame
         {
             if (player.currInputState.leftWasPressed())
             {
-                player.ax = -player.H_ACCEL_CONST / 6;
+                player.ax = -player.H_ACCEL_CONST / 8;
             }
             else if (player.currInputState.rightWasPressed())
             {
-                player.ax = player.H_ACCEL_CONST / 6;
+                player.ax = player.H_ACCEL_CONST / 8;
             }
             else
             {
                 player.xDrag = player.H_DRAG_IN_AIR;
-                player.ax = player.ax / 6;
+                player.ax = player.ax / 8;
             }
         }
 
@@ -125,7 +133,7 @@ namespace PlatformerGame
 
         public bool isInAir()
         {
-            return player.vy != 0;
+            return !player.isOnGround && !player.isOnSlope;
         }
     }
 }

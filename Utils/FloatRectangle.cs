@@ -37,10 +37,10 @@ namespace PlatformerGame.Utils
         public bool Intersects(FloatRectangle r2)
         {
             return !(
-                r2.Left > this.Right ||
-                r2.Right < this.Left ||
-                r2.Top > this.Bottom ||
-                r2.Bottom < this.Top);
+                r2.Left >= this.Right ||
+                r2.Right <= this.Left ||
+                r2.Top >= this.Bottom ||
+                r2.Bottom <= this.Top);
         }
 
         private Rectangle getRect()

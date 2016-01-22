@@ -11,6 +11,12 @@ using Microsoft.Xna.Framework.Storage;
 using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Actors.StatsActors.Impl;
 using PlatformerGame.GameObjects.CollisionObjects;
 using PlatformerGame.GameObjects;
+using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActors.Interactables.Impl;
+using PlatformerGame.GameObjects.CollisionObjects.Impl;
+using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActors.Interactables;
+using PlatformerGame.Level;
+using PlatformerGame.Utils;
+using PlatformerGame.Cameras;
 
 #endregion
 
@@ -26,6 +32,7 @@ namespace PlatformerGame
 		BigFuckingGameClass bigFuckingGameClass;
 		private Texture2D _bkg;
 		private Vector2 _bkgPos;
+        private Texture2D interact;
         public static SpriteFont font { get; set; }
 
 		public Game1 ()
@@ -36,7 +43,7 @@ namespace PlatformerGame
             // Change Virtual Resolution 
             Resolution.Init(ref graphics);
             Resolution.SetVirtualResolution(1920, 1080);
-            bigFuckingGameClass = new BigFuckingGameClass();
+            
 		}
 
 		/// <summary>
@@ -47,7 +54,7 @@ namespace PlatformerGame
 		/// </summary>
         protected override void Initialize()
         {
-            Resolution.SetResolution(1920, 1080, false);
+            Resolution.SetResolution(1280, 720, false);
             base.Initialize();
         }
 
@@ -62,18 +69,13 @@ namespace PlatformerGame
 
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch (GraphicsDevice);
-
-            Texture2D t = Drawer.make2DRect(this.GraphicsDevice, 100, 100, Color.Red);
-            Player player = new Player(t, 0, 0, 0, 0, 100, 100);
-            bigFuckingGameClass.addPlayerToWorld(player);
-            Texture2D wallTexture = Drawer.make2DRect(this.GraphicsDevice, 600, 50, Color.Black);
-            CollisionObject wall = new CollisionObject(wallTexture, 0, 0, 900, 900, 600, 50);
-            bigFuckingGameClass.addGameObjectToWorld(GameObjectType.WALLS, wall);
-
+            LevelGenerator generator = new LevelGenerator(Content, GraphicsDevice);
+            GameObjectContainer container = generator.generateLevel("resources/levels/test.txt");
+            bigFuckingGameClass = new BigFuckingGameClass(container);
 
 			_bkg = Content.Load<Texture2D>("background_large");
 			_bkgPos = new Vector2();
-
+            interact = Content.Load<Texture2D>("interact");
 		}
 
 		/// <summary>
@@ -83,6 +85,14 @@ namespace PlatformerGame
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update (GameTime gameTime)
 		{
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad2))
+            {
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 30.0f);
+                Console.WriteLine("CALLED");
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad1))
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60.0f);
+
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			// Exit() is obsolete on iOS
 			#if !__IOS__
@@ -93,6 +103,9 @@ namespace PlatformerGame
 			#endif
 
 			// TODO: Add your update logic here
+            KeyboardState state = Keyboard.GetState();
+            if (state.IsKeyDown(Keys.Up))
+                Console.WriteLine("UP!");
 			bigFuckingGameClass.update(gameTime);
 			base.Update (gameTime);
 		}
@@ -104,12 +117,11 @@ namespace PlatformerGame
 		protected override void Draw (GameTime gameTime)
 		{
             Resolution.BeginDraw();
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, Resolution.getTransformationMatrix());
+			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null,Resolution.getTransformationMatrix());
 			spriteBatch.Draw(_bkg, _bkgPos, Color.White);
 			bigFuckingGameClass.draw(gameTime, spriteBatch);
 
-            Drawer.drawDebug(font, gameTime, spriteBatch, bigFuckingGameClass.getPlayer());
-            Console.WriteLine(bigFuckingGameClass.getPlayer().vy);
+            Drawer.drawDebug(font, gameTime, spriteBatch, bigFuckingGameClass.getPlayer(), bigFuckingGameClass.getNumGameObjects(), bigFuckingGameClass.numCollisionsChecked);
 			spriteBatch.End();
 
 			base.Draw (gameTime);

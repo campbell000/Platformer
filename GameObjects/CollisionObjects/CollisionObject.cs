@@ -19,5 +19,23 @@ namespace PlatformerGame.GameObjects.CollisionObjects
         {
             base.updateAnimation();
         }
+
+        public virtual void stopAllMovement()
+        {
+            this.stopHorizontalMovement();
+            this.stopVerticalMovement();
+        }
+
+        public virtual void stopHorizontalMovement()
+        {
+            this.vx = 0;
+            this.ax = 0;
+        }
+
+        public virtual void stopVerticalMovement()
+        {
+            this.vy = 0;
+            this.ay = 0;
+        }
     }
 }

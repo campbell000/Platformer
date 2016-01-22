@@ -7,6 +7,6 @@ namespace PlatformerGame.GameObjects
 {
     public enum GameObjectType
     {
-        WALLS, PARTICLE, SETPEICE, ACTORS
+        WALLS, PROJECTILES, MOVABLES, VISUAL_EFFECTS
     }
 }

@@ -5,7 +5,7 @@ using PlatformerGame.Utils;
 
 namespace PlatformerGame
 {
-	public class GameObject : IGameObject
+	public class GameObject
 	{
 		/* x position of object */
 		public float x {get; set;}
@@ -59,6 +59,12 @@ namespace PlatformerGame
 		/* Number of frames that a tile is displayed on screen (default is 1) */
         public int frameScaler { get; set; }
 
+        public bool active { get; set; }
+
+        public bool onScreen { get; set; }
+
+        public bool isSolid { get; set; }
+
 		public GameObject(Texture2D texture, int rows, int columns, float x, float y, float width, float height)
 		{
 			initFrameVars(columns, rows);
@@ -69,6 +75,9 @@ namespace PlatformerGame
 			this.height = height;
             this.xDrag = 1;
             this.yDrag = 1;
+            active = true;
+            onScreen = true;
+            isSolid = true;
 		}
 
 		private void initFrameVars(int columns, int rows)
@@ -84,23 +93,36 @@ namespace PlatformerGame
 		/**
 		 * This method updates the current frame of the animation
 		 **/
-		protected virtual void updateAnimation()
-		{
-			frameCounter++;
-			if (frameCounter/2 == totalFrames)
-				frameCounter = 0;
+        protected virtual void updateAnimation()
+        {
+            frameCounter++;
+            if (frameCounter / 2 == totalFrames)
+                frameCounter = 0;
 
-			currentFrame = frameCounter / 2;
-		}
+            currentFrame = frameCounter / 2;
+        }
 
-		public virtual void update(GameTime deltaTime)
-		{
-			updateAnimation();
-		}
-
-        public FloatRectangle getBoundingBox()
+        public virtual FloatRectangle getBoundingBox()
         {
             return new FloatRectangle(x, y, width, height);
+        }
+
+        public virtual void updateState()
+        {
+            this.updateAnimation();
+        }
+
+        public void destroy()
+        {
+            this.active = false;
+            this.onScreen = false;
+        }
+
+        public Vector2 getCenter()
+        {
+            Vector2 center = new Vector2((x + (width / 2)), y + (height / 2));
+
+            return center;
         }
 	}
 }

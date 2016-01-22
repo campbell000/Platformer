@@ -24,18 +24,24 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Acto
             this.physicsHandler = new PlayerPhysicsHandler(this);
 		}
 
-		public void processInputs(InputState state)
+		public void processInputs(InputState state, GameTime deltaTime)
 		{
 			prevInputState = currInputState;
 			currInputState = state;
-		}
-			
-		public override void update(GameTime deltaTime)
-		{
             physicsHandler.adjustForInputs(deltaTime);
-			base.update(deltaTime);
-            physicsHandler.adjustPhysicsCalculations();
 		}
+
+        public override void updateHorizontalMovement(GameTime delta)
+        {
+            base.updateHorizontalMovement(delta);
+            physicsHandler.adjustHorizontalPhysicsCalculations();
+        }
+
+        public override void updateVerticalMovement(GameTime deltaTime)
+        {
+            base.updateVerticalMovement(deltaTime);
+            physicsHandler.adjustVerticalPhysicsCalculations();
+        }
 
         protected override void adjustXVelocity()
         {

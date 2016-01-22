@@ -20,15 +20,5 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Acto
             this.ay = V_ACCEL_CONST;
             this.xDrag = 1f;
         }
-
-        public override void update(Microsoft.Xna.Framework.GameTime delta)
-        {
-            base.update(delta);
-        }
-
-        protected override void updateMovement(Microsoft.Xna.Framework.GameTime delta)
-        {
-            base.updateMovement(delta);
-        }
     }
 }

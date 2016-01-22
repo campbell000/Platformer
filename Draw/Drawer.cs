@@ -4,15 +4,19 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Actors;
 using PlatformerGame.GameObjects;
+using PlatformerGame.Cameras;
 
 namespace PlatformerGame
 {
     class Drawer
     {
         private static FrameCounter _frameCounter = new FrameCounter();
+        private static Rectangle drawingRectangle = new Rectangle();
 
-        public static void drawObject(GameTime deltaTime, SpriteBatch spriteBatch, GameObject gameObject)
+        //SET OBJECTS BEING DRAWN IN TERMS OF THE POSITION OF THE CAMERA
+        public static void drawObject(Camera camera, GameTime deltaTime, SpriteBatch spriteBatch, GameObject gameObject)
         {
             if (gameObject.texture != null && gameObject.rows > 0 && gameObject.columns > 0)
             {
@@ -22,9 +26,7 @@ namespace PlatformerGame
                 int column = gameObject.currentFrame % gameObject.columns;
 
                 Rectangle sourceRectangle = new Rectangle(width * column, height * row, width, height);
-                Rectangle destinationRectangle = new Rectangle((int)gameObject.x, (int)gameObject.y, width, height);
-
-                spriteBatch.Draw(gameObject.texture, destinationRectangle, sourceRectangle, Color.White);
+                spriteBatch.Draw(gameObject.texture, getDrawingRectangle(camera, gameObject), sourceRectangle, Color.White);
             }
             else
             {
@@ -33,22 +35,44 @@ namespace PlatformerGame
             }
         }
 
-        public static void drawDebug(SpriteFont font, GameTime time, SpriteBatch spriteBatch, GameObject objToTrack)
+        protected static Rectangle getDrawingRectangle(Camera camera, GameObject gameObject)
+        {
+            //Adjust X and Y for camera position
+            int adjustedX = (int)(gameObject.x - camera.x);
+            int adjustedY = (int)(gameObject.y - camera.y);
+            drawingRectangle.X = adjustedX;
+            drawingRectangle.Y = adjustedY;
+            drawingRectangle.Width = (int)gameObject.width;
+            drawingRectangle.Height = (int)gameObject.height;
+
+            return drawingRectangle;
+        }
+
+        public static void drawDebug(SpriteFont font, GameTime time, SpriteBatch spriteBatch, Actor objToTrack, int num, int numCollisions)
         {
             var pos = "x: " + objToTrack.x + ", y: " + objToTrack.y;
             var v = "vx: " + objToTrack.vx + ", vy: " + objToTrack.vy;
             var a = "ax: " + objToTrack.ax + ", ay: " + objToTrack.ay;
+            var numObjs = "GameObjects: " + num;
+            var numColl = "Number Of Tile Collisions: " + numCollisions;
+            var onSlope = "On Slope: " + objToTrack.isOnSlope;
+            var canJ = "Is on Ground: " + objToTrack.isOnGround;
+
             if (font != null)
             {
-                spriteBatch.DrawString(font, pos, new Vector2(1, 40), Color.Black);
-                spriteBatch.DrawString(font, v, new Vector2(1, 80), Color.Black);
-                spriteBatch.DrawString(font, a, new Vector2(1, 120), Color.Black);
+                spriteBatch.DrawString(font, pos, new Vector2(1, 40), Color.White);
+                spriteBatch.DrawString(font, v, new Vector2(1, 80), Color.White);
+                spriteBatch.DrawString(font, a, new Vector2(1, 120), Color.White);
+                spriteBatch.DrawString(font, numObjs, new Vector2(1, 160), Color.White);
+                spriteBatch.DrawString(font, numColl, new Vector2(1, 200), Color.White);
+                spriteBatch.DrawString(font, onSlope, new Vector2(1, 240), Color.White);
+                spriteBatch.DrawString(font, canJ, new Vector2(1, 280), Color.White);
             }
 
             var fps = string.Format("FPS: {0}", _frameCounter.AverageFramesPerSecond);
             var deltaTime = (float)time.ElapsedGameTime.TotalSeconds;
             _frameCounter.Update(deltaTime);
-            spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.Black);
+            spriteBatch.DrawString(font, fps, new Vector2(1, 1), Color.White);
         }
 
         public static Texture2D make2DRect(GraphicsDevice device, int width, int height)
