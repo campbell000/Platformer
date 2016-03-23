@@ -8,17 +8,17 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Acto
 {
 	public class Player : StatsActor
 	{
-		public InputState prevInputState;
+        /* Special Phsysics stuff for the player */
         public InputState currInputState;
         public PlayerPhysicsHandler physicsHandler;
-        
-        public bool jumpWasReleased = false;
         public double millisJumpHeld = 0;
         public float JUMP_FORCE = -1.3f;
+        public bool jumpWasReleased = false;
+        
+        /* Interaction Logic variables */
+        public bool canInteract { get; set; }
 
-        public bool canJumpAgain = true;
-
-		public Player (Texture2D texture, int rows, int columns, float x, float y, float width, float height) : base(texture, rows, columns,
+		public Player (Texture2D texture, Texture2D interactTexture, int rows, int columns, float x, float y, float width, float height) : base(texture, rows, columns,
 			x, y, width, height)
 		{
             this.physicsHandler = new PlayerPhysicsHandler(this);
@@ -26,7 +26,6 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Acto
 
 		public void processInputs(InputState state, GameTime deltaTime)
 		{
-			prevInputState = currInputState;
 			currInputState = state;
             physicsHandler.adjustForInputs(deltaTime);
 		}

@@ -19,14 +19,12 @@ namespace PlatformerGame.GameObjects.CollisionObjects.Impl
         public bool isNextToSlope { get; set; }
         public float slopeAngle { get; set; }
 
-
         public Tile(Texture2D texture, int rows, int columns, float x, float y, float width, float height) : 
             base(texture, rows, columns, x, y, width, height)
         {
             isSloped = false;
             slopeStart = new Point(0,0);
             slopeEnd = new Point(0,0);
-            isNextToSlope = false;
             slopeAngle = 0;
         }
 
@@ -35,7 +33,6 @@ namespace PlatformerGame.GameObjects.CollisionObjects.Impl
             Tile tile = new Tile(null, 0, 0, x, y, width, height);
             tile.isSolid = false;
             tile.active = false;
-            tile.onScreen = false;
             return tile;
         }
 
@@ -43,6 +40,8 @@ namespace PlatformerGame.GameObjects.CollisionObjects.Impl
             base(texture, rows, columns, x, y, width, height)
         {
             isSloped = true;
+            slopeStart = new Point(0, 0);
+            slopeEnd = new Point(0, 0);
 
             if (slope > 0) //Tile that goes like this => /
                 initUpSlopeTile(slope);
@@ -53,14 +52,44 @@ namespace PlatformerGame.GameObjects.CollisionObjects.Impl
             slopeAngle = slope;
         }
 
+        public Tile(Texture2D texture, int rows, int columns, float x, float y, float width, float height, float slope, float slopeStartY) :
+            base(texture, rows, columns, x, y, width, height)
+        {
+            isSloped = true;
+            slopeStart = new Point(0, 0);
+            slopeEnd = new Point(0, 0);
+
+            if (slope > 0) //Tile that goes like this => /
+                initUpSlopeTile(slope, slopeStartY);
+            else //Tile that goes like this => \
+                initDownSlopeTile(slope, slopeStartY);
+
+            isNextToSlope = false;
+            slopeAngle = slope;
+        }
+
         private void initUpSlopeTile(float slope)
         {
             double radians = slope * (Math.PI / 180);
             FloatRectangle boundingBox = this.getBoundingBox();
 
-            slopeStart = new Point(boundingBox.Left, boundingBox.Bottom);
+            slopeStart.X = boundingBox.Left;
+            slopeStart.Y = boundingBox.Bottom;
             double yPos = Math.Tan(radians) * boundingBox.width;
-            slopeEnd = new Point(boundingBox.Right, (float)(boundingBox.Bottom - yPos));
+            slopeEnd.X = boundingBox.Right;
+            slopeEnd.Y = (float)(boundingBox.Bottom - yPos);
+        }
+
+        private void initUpSlopeTile(float slope, float startY)
+        {
+            double radians = slope * (Math.PI / 180);
+            FloatRectangle boundingBox = this.getBoundingBox();
+
+            slopeStart.X = boundingBox.Left;
+            slopeStart.Y = startY;
+            double yPos = Math.Tan(radians) * boundingBox.width;
+            slopeEnd.X = boundingBox.Right;
+            slopeEnd.Y = (float)(startY - yPos);
         }
 
         private void initDownSlopeTile(float slope)
@@ -68,9 +97,23 @@ namespace PlatformerGame.GameObjects.CollisionObjects.Impl
             double radians = Math.Abs(slope) * (Math.PI / 180);
             FloatRectangle boundingBox = this.getBoundingBox();
 
-            this.slopeStart = new Point(boundingBox.Left, boundingBox.Top);
+            this.slopeStart.X = boundingBox.Left;
+            this.slopeStart.Y = boundingBox.Top;
             double yPos = Math.Tan(radians) * boundingBox.width;
-            this.slopeEnd = new Point(boundingBox.Right, (float)(boundingBox.Top + yPos));
+            this.slopeEnd.X = boundingBox.Right;
+            this.slopeEnd.Y= (float)(boundingBox.Top + yPos);
+        }
+
+        private void initDownSlopeTile(float slope, float startY)
+        {
+            double radians = Math.Abs(slope) * (Math.PI / 180);
+            FloatRectangle boundingBox = this.getBoundingBox();
+
+            this.slopeStart.X = boundingBox.Left;
+            this.slopeStart.Y = startY;
+            double yPos = Math.Tan(radians) * boundingBox.width;
+            this.slopeEnd.X = boundingBox.Right;
+            this.slopeEnd.Y = (float)(startY + yPos);
         }
 
         public float getSlope()

@@ -59,11 +59,21 @@ namespace PlatformerGame
 		/* Number of frames that a tile is displayed on screen (default is 1) */
         public int frameScaler { get; set; }
 
+        /* Indicates whether or not the object should be in the game world */
         public bool active { get; set; }
 
-        public bool onScreen { get; set; }
-
         public bool isSolid { get; set; }
+
+        public bool immuneToCamera { get; set; }
+
+        /* Set this variable to a non-zero variable to make this object's bounding box bigger or smaller than
+         * it's actual width and height
+         */
+        public int boundingBoxOffset { get; set; }
+
+        private FloatRectangle boundingBox = new FloatRectangle();
+
+        private Vector2 centerPosition = new Vector2();
 
 		public GameObject(Texture2D texture, int rows, int columns, float x, float y, float width, float height)
 		{
@@ -76,9 +86,24 @@ namespace PlatformerGame
             this.xDrag = 1;
             this.yDrag = 1;
             active = true;
-            onScreen = true;
             isSolid = true;
+            immuneToCamera = false;
 		}
+
+        public GameObject(Texture2D texture, int rows, int columns, float x, float y, float width, float height, int boundingBoxOffset)
+        {
+            initFrameVars(columns, rows);
+            this.texture = texture;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.xDrag = 1;
+            this.yDrag = 1;
+            active = true;
+            isSolid = true;
+            this.boundingBoxOffset = boundingBoxOffset;
+        }
 
 		private void initFrameVars(int columns, int rows)
 		{
@@ -104,7 +129,11 @@ namespace PlatformerGame
 
         public virtual FloatRectangle getBoundingBox()
         {
-            return new FloatRectangle(x, y, width, height);
+            boundingBox.x = x;
+            boundingBox.y = y;
+            boundingBox.width = width;
+            boundingBox.height = height;
+            return boundingBox;
         }
 
         public virtual void updateState()
@@ -115,14 +144,32 @@ namespace PlatformerGame
         public void destroy()
         {
             this.active = false;
-            this.onScreen = false;
         }
 
         public Vector2 getCenter()
         {
-            Vector2 center = new Vector2((x + (width / 2)), y + (height / 2));
+            centerPosition.X = (x + (width / 2)); 
+            centerPosition.Y = (y + (height / 2));
 
-            return center;
+            return centerPosition;
+        }
+
+        public float getXPosToCenterObject(GameObject o)
+        {
+            Vector2 center = getCenter();
+            return center.X - (o.width / 2);
+        }
+
+        public float getYPosToCenterObject(GameObject o)
+        {
+            Vector2 center = getCenter();
+            return center.Y - (o.height / 2);
+        }
+
+        public void setPos(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
         }
 	}
 }

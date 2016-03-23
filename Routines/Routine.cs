@@ -8,7 +8,7 @@ namespace PlatformerGame.Routines
     /**
      * This method represents a list of actions that an Interactable 
      **/
-    class Routine
+    public class Routine
     {
     }
 }

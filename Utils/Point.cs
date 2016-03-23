@@ -20,5 +20,13 @@ namespace PlatformerGame.Utils
         {
             return (p2.Y - Y) / (p2.X - X);
         }
+
+        public static Point setPoint(Point p, float x, float y)
+        {
+            p.X = x;
+            p.Y = y;
+
+            return p;
+        }
     }
 }

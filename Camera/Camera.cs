@@ -11,6 +11,8 @@ using PlatformerGame.Utils;
 namespace PlatformerGame.Cameras
 {
     /**
+     * This class represents a camera that has a viewport equal to the game's internal resolution.
+     * 
      * NOTE: The camera's position is at the top-left-most position of it's view, NOT the center.
      **/
     public class Camera
@@ -30,6 +32,9 @@ namespace PlatformerGame.Cameras
             this.container = container;
         }
 
+        /**
+         * This method centers the camera on the given object, and follows him in subsequent frames
+         **/
         public void centerAndFollowObject(GameObject o)
         {
             objectToFollow = o;
@@ -38,6 +43,9 @@ namespace PlatformerGame.Cameras
             y = middleOfObject.Y - (HEIGHT / 2);
         }
 
+        /**
+         * This method moves the camera if the object it is currently following is out of it's boundaries
+         **/
         public void updateCameraPosition()
         {
             float currentLeftCameraBoundary = x + BOUNDARY_WIDTH;
@@ -55,6 +63,15 @@ namespace PlatformerGame.Cameras
                 y -= (currentTopCameraBoundary - objectToFollow.y);
             else if (objectToFollow.y > currentBottomCameraBoundary)
                 y += (objectToFollow.y - currentBottomCameraBoundary);
+        }
+
+        /**
+         * This method returns true if the given object is contained within the camera's viewport.
+         **/
+        public Boolean canSeeObject(GameObject o)
+        {
+            return (o.x + o.width) >= x && o.x <= (x + WIDTH) &&
+                (o.y + o.height) >= y && o.y <= (y + HEIGHT);
         }
     }
 }

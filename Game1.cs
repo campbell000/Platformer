@@ -17,6 +17,7 @@ using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActor
 using PlatformerGame.Level;
 using PlatformerGame.Utils;
 using PlatformerGame.Cameras;
+using PlatformerGame.Draw;
 
 #endregion
 
@@ -33,7 +34,8 @@ namespace PlatformerGame
 		private Texture2D _bkg;
 		private Vector2 _bkgPos;
         private Texture2D interact;
-        public static SpriteFont font { get; set; }
+        public static SpriteFontContainer fonts { get; set; }
+        private bool drawMinDebug = true;
 
 		public Game1 ()
 		{
@@ -65,17 +67,17 @@ namespace PlatformerGame
 		protected override void LoadContent ()
 		{
             //Load Font
-            font = Content.Load<SpriteFont>("TestFont");
+            fonts = SpriteFontContainer.initialize(Content);
 
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch (GraphicsDevice);
             LevelGenerator generator = new LevelGenerator(Content, GraphicsDevice);
             GameObjectContainer container = generator.generateLevel("resources/levels/test.txt");
-            bigFuckingGameClass = new BigFuckingGameClass(container);
-
+            bigFuckingGameClass = new BigFuckingGameClass(container, fonts);
 			_bkg = Content.Load<Texture2D>("background_large");
 			_bkgPos = new Vector2();
-            interact = Content.Load<Texture2D>("interact");
+
+            GC.Collect();
 		}
 
 		/// <summary>
@@ -102,10 +104,21 @@ namespace PlatformerGame
 			}
 			#endif
 
-			// TODO: Add your update logic here
             KeyboardState state = Keyboard.GetState();
-            if (state.IsKeyDown(Keys.Up))
-                Console.WriteLine("UP!");
+            if (state.IsKeyDown(Keys.D1))
+            {
+                drawMinDebug = false;
+            }
+            else if (state.IsKeyDown(Keys.D2))
+            {
+                drawMinDebug = true;
+            }
+            else if (state.IsKeyDown(Keys.D3))
+            {
+                GC.Collect();
+            }
+
+			// TODO: Add your update logic here
 			bigFuckingGameClass.update(gameTime);
 			base.Update (gameTime);
 		}
@@ -121,7 +134,7 @@ namespace PlatformerGame
 			spriteBatch.Draw(_bkg, _bkgPos, Color.White);
 			bigFuckingGameClass.draw(gameTime, spriteBatch);
 
-            Drawer.drawDebug(font, gameTime, spriteBatch, bigFuckingGameClass.getPlayer(), bigFuckingGameClass.getNumGameObjects(), bigFuckingGameClass.numCollisionsChecked);
+            Drawer.drawDebug(fonts.debugFont, gameTime, spriteBatch, bigFuckingGameClass.getPlayer(), bigFuckingGameClass.getNumGameObjects(), bigFuckingGameClass.playStateManager.numCollisionsChecked, bigFuckingGameClass.getNumObjectsDrawn(), drawMinDebug);
 			spriteBatch.End();
 
 			base.Draw (gameTime);

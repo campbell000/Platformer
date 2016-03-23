@@ -10,50 +10,38 @@ using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActor
 using PlatformerGame.GameObjects.CollisionObjects.Impl;
 using PlatformerGame.GameObjects;
 using PlatformerGame.Physics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Storage;
 using PlatformerGame.GameObjects.Impl;
 using PlatformerGame.Utils;
 using PlatformerGame.Cameras;
+using PlatformerGame.GameStates;
+using PlatformerGame.Utils.Pools;
+using PlatformerGame.GameObjects.VisualObjects;
+using PlatformerGame.GameStateManagers;
+using PlatformerGame.Draw;
 
 namespace PlatformerGame
 {
 	public class BigFuckingGameClass
 	{
-        //Objects that there will only be one of on the entire screen
-        InteractIndicator indicator;
-        GameObjectContainer gameObjects { get; set; }
-        Camera camera;
-        public int numCollisionsChecked { get; set; }
+        public SpriteFontContainer fonts;
+        public GameObjectContainer gameObjects { get; set; }
+        public InputState inputState = new InputState();
+        private StateManager currentStateManager;
+        private DialogManager dialogManager;
+        public PlayStateManager playStateManager { get; set; }
+        public Interactable objectToInteractWith;
 
-        private CollisionHandler collisionHandler;
-
-		public BigFuckingGameClass (Player player)
-		{
-            gameObjects = new GameObjectContainer(player);
-            collisionHandler = new CollisionHandler();
-            camera = new Camera(gameObjects);
-            camera.centerAndFollowObject(player);
-		}
-
-        public BigFuckingGameClass()
+        public BigFuckingGameClass(GameObjectContainer container, SpriteFontContainer fonts)
         {
-            gameObjects = new GameObjectContainer();
-            collisionHandler = new CollisionHandler();
-            camera = new Camera(gameObjects);
-        }
-
-        public BigFuckingGameClass(GameObjectContainer container)
-        {
+            this.fonts = fonts;
             gameObjects = container;
-            collisionHandler = new CollisionHandler();
-            camera = new Camera(gameObjects);
-            camera.centerAndFollowObject(container.getPlayer());
+            dialogManager = new DialogManager(gameObjects, fonts.dialogFont);
+            playStateManager = new PlayStateManager(gameObjects);
+            currentStateManager = playStateManager;
         }
 
         public Player getPlayer()
@@ -61,67 +49,56 @@ namespace PlatformerGame
             return gameObjects.getPlayer();
         }
 
-		public void initTextures(ContentManager Content)
-		{
-            indicator = new InteractIndicator(Content, 1, 1, 0, 0, 50, 50);
-		}
-
 		public void update(GameTime delta)
 		{
-			//First, gather inputs and update player accordingly.
-			gameObjects.getPlayer().processInputs(new InputState(), delta);
+            //First and foremost, update the input state,
+            inputState.updateInputState();
 
-			//Second, update movement of the game objects
-            updateMovement(delta);
+            //Update based on the state of the game
+            currentStateManager.updateState(delta, inputState);
 
-            //Third, update the state of all GameObjects based on collisions, time, etc
-            foreach (GameObject o in gameObjects.getAllGameObjects())
-            {
-                if (o != null)
-                    o.updateState();
-            }
-
-            //Fourth, update the camera based on the player's position
-            camera.updateCameraPosition();
+            //Change State Managers if the state indicates that it wants to exit
+            if (currentStateManager.willExitState())
+                handleTransition(currentStateManager);
 		}
 
-        /**
-         * We need to update the axes seperately. See http://gamedev.stackexchange.com/questions/69339/2d-aabbs-and-resolving-multiple-collisions
-         **/
-        private void updateMovement(GameTime delta)
+        private void handleTransition(StateManager currentManager)
         {
-            //First, update the horizontal movement of all physics objects and adjust for any collisions
-            foreach (MovablePhysicsObject o in gameObjects.physicsObjects)
+            GameState targetState = currentManager.getStateToEnter();
+
+            //PLAY => DIALOG
+            if (currentManager.getThisState() == GameState.PLAY && currentManager.getStateToEnter() == GameState.DIALOG)
             {
-                //Reset variables that need to be reset
-                o.isOnSlope = false;
-                o.isTouchingSlope = false;
-                o.isOnGround = false;
-
-                o.updateHorizontalMovement(delta);
+                dialogManager.prepareToEnterState(playStateManager.getObjectToInteractWith());
+                currentStateManager = dialogManager;
             }
-            int num = collisionHandler.handlePhysicsObjectCollisions(gameObjects, CollisionHandler.HORIZONTAL_CHECK);
 
-            //Second, update the vertical movement of all physic s objects
-            foreach (MovablePhysicsObject o in gameObjects.physicsObjects)
+            //DIALOG => PLAY
+            if (currentManager.getThisState() == GameState.DIALOG && currentManager.getStateToEnter() == GameState.PLAY)
             {
-                o.updateVerticalMovement(delta);
+                currentStateManager = playStateManager;
             }
-            num += collisionHandler.handlePhysicsObjectCollisions(gameObjects, CollisionHandler.VERTICAL_CHECK);
-
-            numCollisionsChecked = num;
         }
 
 		public void draw(GameTime t,SpriteBatch batch)
 		{
-            foreach(GameObject o in gameObjects.getAllGameObjects())
+            Drawer.itemsDrawnInThisFrame = 0;
+            for(int i = 0; i < gameObjects.allObjects.Count; i++)
             {
-                if (o != null && o.onScreen)
-                    Drawer.drawObject(camera, t, batch, o);
+                Drawer.drawObject(playStateManager.camera, t, batch, gameObjects.allObjects[i]);
             }
 
             //Make sure we draw the player last (RIGHT NOW WE ARE DRAWING THE PLAYER TWICE. IS THIS BAD?)
-            Drawer.drawObject(camera, t, batch, gameObjects.getPlayer());
+            Drawer.drawObject(playStateManager.camera, t, batch, gameObjects.getPlayer());
+
+            //Draw the HUD objects last, as they need to be at the forefront of the screen
+            for (int i = 0; i < gameObjects.HUDObjects.Count; i++)
+            {
+                Drawer.drawObject(playStateManager.camera, t, batch, gameObjects.HUDObjects[i]);
+            }
+
+            //Draw anything related to the specific state
+            currentStateManager.drawStateSpecificObjects(t, batch);
 		}
 
         public int getNumGameObjects()
@@ -129,9 +106,9 @@ namespace PlatformerGame
             return gameObjects.getAllGameObjects().Count;
         }
 
-        public void addInteractable(Interactable i)
+        public int getNumObjectsDrawn()
         {
-            gameObjects.addInteractable(i);
+            return Drawer.itemsDrawnInThisFrame;
         }
 	}
 }

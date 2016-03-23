@@ -69,11 +69,18 @@
   <ItemGroup>
     <Compile Include="BigFuckingGameClass.cs" />
     <Compile Include="Camera\Camera.cs" />
-    <Compile Include="Camera\Camera2D.cs" />
+    <Compile Include="Draw\SpriteFontContainer.cs" />
+    <Compile Include="GameStateManagers\DialogManager.cs" />
     <Compile Include="Draw\Drawer.cs" />
     <Compile Include="GameObjects\CollisionObjects\Impl\Tile.cs" />
+    <Compile Include="GameObjects\CollisionObjects\MovablePhysicsObjects\NonActor\Interactable\NPC\NPC.cs" />
     <Compile Include="GameObjects\GameObjectContainer.cs" />
     <Compile Include="GameObjects\Impl\InteractIndicator.cs" />
+    <Compile Include="GameObjects\VisualObjects\VisualObject.cs" />
+    <Compile Include="GameStateManagers\old_dialog.cs" />
+    <Compile Include="GameStateManagers\PlayStateManager.cs" />
+    <Compile Include="GameStateManagers\StateManager.cs" />
+    <Compile Include="GameState\GameState.cs" />
     <Compile Include="Level\LevelGenConst.cs" />
     <Compile Include="Physics\CollisionHandler.cs" />
     <Compile Include="Physics\CollisionType.cs" />
@@ -100,8 +107,14 @@
     <Compile Include="Physics\PlayerPhysicsHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\LevelGenerator.cs" />
+    <Compile Include="Level\LevelGenerator.cs" />
+    <Compile Include="Utils\Pair.cs" />
     <Compile Include="Utils\Point.cs" />
+    <Compile Include="Utils\Pools\FloatRectanglePool.cs" />
+    <Compile Include="Utils\Pools\PairPool.cs" />
+    <Compile Include="Utils\Pools\Pool.cs" />
+    <Compile Include="Utils\Pools\RectanglePool.cs" />
+    <Compile Include="Utils\Pools\VisualObjectPool.cs" />
     <Compile Include="Utils\Resolution.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
@@ -126,6 +139,7 @@
   <ItemGroup>
     <Folder Include="GameObjects\CollisionObjects\MovablePhysicsObjects\Actors\Impl\" />
     <Folder Include="GameObjects\CollisionObjects\MovablePhysicsObjects\Actors\StatsActors\Impl\Enemy\" />
+    <Folder Include="GameObjects\CollisionObjects\MovablePhysicsObjects\NonActor\Interactable\NPC\Impl\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

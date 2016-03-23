@@ -8,6 +8,9 @@ using PlatformerGame.GameObjects.CollisionObjects.Impl;
 using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects;
 using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActors.Interactables;
 using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.Actors.StatsActors.Impl;
+using PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonActors.Interactables.NPCS;
+using PlatformerGame.Utils.Pools;
+using PlatformerGame.GameObjects.VisualObjects;
 using Microsoft.Xna.Framework;
 
 namespace PlatformerGame.GameObjects
@@ -17,54 +20,40 @@ namespace PlatformerGame.GameObjects
         /* All tiles that things can collide with (walls, floors, etc) */
         public Tile[][] walls { get; set; }
 
-        public void setTiles(Tile [][] value)
-        {
-            this.walls = value;
-            foreach (Tile[] arr in value)
-            {
-                foreach (Tile tile in arr)
-                {
-                    if (tile != null)
-                        allObjects.Add(tile);
-                }
-            }
-        }
-
-        /* All interactables (things that do not move, but can be interacted with */
-        public HashSet<Interactable> interactables { get; set; }
+        /* All interactables (things that do not move, and therefore don't need collisions, but can be interacted with */
+        public List<Interactable> interactables { get; set; }
 
         /* All things that adhere to the laws of physics (well, my flawed approximation of them), 
          * like players, enemies, projectiles, etc.
          */
-        public HashSet<MovablePhysicsObject> physicsObjects { get; set; }
+        public List<MovablePhysicsObject> physicsObjects { get; set; }
 
         /* All visual effects (interaction indicator, dust, etc) */
-        public HashSet<GameObject> visualEffects { get; set; }
+        public List<GameObject> visualEffects { get; set; }
+
+        public List<VisualObject> HUDObjects { get; set; }
 
         /* All objects in the game world */
-        HashSet<GameObject> allObjects { get; set; }
+        public List<GameObject> allObjects { get; set; }
 
-        Player player {get; set; }
+        /** The following variables are objects that need to be especially referenced (due to the shitty way that I designed things) **/
+        public Player player {get; set; }
 
-        Sidekick sidekick {get; set; }
+        public Sidekick sidekick {get; set; }
 
-        public GameObjectContainer(Player player)
-        {
-            this.player = player;
-            interactables = new HashSet<Interactable>();
-            physicsObjects = new HashSet<MovablePhysicsObject>();
-            visualEffects = new HashSet<GameObject>();
-            allObjects = new HashSet<GameObject>();
-            allObjects.Add(player);
-            physicsObjects.Add(player);
-        }
+        public VisualObject interactionIndicator;
+
+        public VisualObject dialogBox;
+
+        private Rectangle internalBoundingBox = new Rectangle();
 
         public GameObjectContainer()
         {
-            interactables = new HashSet<Interactable>();
-            physicsObjects = new HashSet<MovablePhysicsObject>();
-            visualEffects = new HashSet<GameObject>();
-            allObjects = new HashSet<GameObject>();
+            interactables = new List<Interactable>();
+            physicsObjects = new List<MovablePhysicsObject>();
+            visualEffects = new List<GameObject>();
+            allObjects = new List<GameObject>();
+            HUDObjects = new List<VisualObject>();
         }
 
         public void addPlayer(Player p)
@@ -72,6 +61,13 @@ namespace PlatformerGame.GameObjects
             this.player = p;
             allObjects.Add(p);
             physicsObjects.Add(p);
+        }
+
+        public void addNPC(NPC npc)
+        {
+            this.physicsObjects.Add(npc);
+            this.interactables.Add(npc);
+            this.allObjects.Add(npc);
         }
 
         public void addInteractable(Interactable s)
@@ -92,6 +88,11 @@ namespace PlatformerGame.GameObjects
             allObjects.Remove(m);
         }
 
+        public void addHUDObject(VisualObject o)
+        {
+            HUDObjects.Add(o);
+        }
+
         public void removeInteractable(Interactable s)
         {
             interactables.Remove(s);
@@ -110,7 +111,7 @@ namespace PlatformerGame.GameObjects
             allObjects.Remove(o);
         }
 
-        public HashSet<GameObject> getAllGameObjects()
+        public List<GameObject> getAllGameObjects()
         {
             return allObjects;
         }
@@ -120,18 +121,11 @@ namespace PlatformerGame.GameObjects
             return player;
         }
 
-        public ISet<Player> getPlayerAsSet()
-        {
-            HashSet<Player> set = new HashSet<Player>();
-            set.Add(player);
-            return set;
-        }
-
         /**
-         * This method returns a rectangle representing the the dimension of all of the tiles that can possibly 
+         * This method returns a rectangle representing the dimension of all of the tiles that can possibly 
          * collide with the given object. For example, if the given object can collide with the tiles at 
          * (3,4), (3, 5), (4, 4), and (4, 5), this method will return a Rectangle where x = 3, y = 4,
-         * width = 2, and height = 2.
+         * width = 2, and height = 2. This culls the amount of objects we need to check for collisions.
          **/
         public Rectangle getBoundingBoxForPossibleCollisions(GameObject reference)
         {
@@ -146,7 +140,7 @@ namespace PlatformerGame.GameObjects
             int width = rightTileIndex - leftTileIndex;
             int height = bottomTileIndex - topTileIndex;
 
-            return new Rectangle(leftTileIndex, topTileIndex, width, height);
+            return getBoundingCollideBox(leftTileIndex, topTileIndex, width, height);
         }
 
         public Tile getTileAt(int x, int y)
@@ -160,6 +154,29 @@ namespace PlatformerGame.GameObjects
             }
 
             return null;
+        }
+
+        private Rectangle getBoundingCollideBox(int x, int y, int width, int height)
+        {
+            internalBoundingBox.X = x;
+            internalBoundingBox.Y = y;
+            internalBoundingBox.Width = width;
+            internalBoundingBox.Height = height;
+
+            return internalBoundingBox;
+        }
+
+        public void setTiles(Tile [][] value)
+        {
+            this.walls = value;
+            foreach (Tile[] arr in value)
+            {
+                foreach (Tile tile in arr)
+                {
+                    if (tile != null)
+                        allObjects.Add(tile);
+                }
+            }
         }
     }
  

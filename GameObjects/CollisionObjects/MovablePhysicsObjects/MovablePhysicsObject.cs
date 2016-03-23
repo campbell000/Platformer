@@ -50,5 +50,12 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects
         {
             base.updateAnimation();
         }
+
+        public void resetCollisionState()
+        {
+            isOnSlope = false;
+            isTouchingSlope = false;
+            isOnGround = false;
+        }
     }
 }

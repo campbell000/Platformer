@@ -24,6 +24,7 @@ namespace PlatformerGame.Utils
         public float Bottom { get { return y + height; } }
         public float Left { get { return x; } }
         public float Right { get { return x + width; } }
+        private Rectangle internalRect = new Rectangle();
 
         public FloatRectangle(float x, float y, float width, float height)
         {
@@ -31,6 +32,14 @@ namespace PlatformerGame.Utils
             this.y = y;
             this.width = width;
             this.height = height;
+        }
+
+        public FloatRectangle()
+        {
+            this.x = 0;
+            this.y = 0;
+            this.width = 0;
+            this.height = 0;
         }
 
 
@@ -45,7 +54,12 @@ namespace PlatformerGame.Utils
 
         private Rectangle getRect()
         {
-            return new Rectangle((int)x, (int)y, (int)width, (int)height);
+            internalRect.X = (int)x;
+            internalRect.Y = (int)y;
+            internalRect.Width = (int)width;
+            internalRect.Height = (int)height;
+
+            return internalRect;
         }
     }
 }

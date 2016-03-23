@@ -8,6 +8,8 @@ namespace PlatformerGame.GameObjects.CollisionObjects.MovablePhysicsObjects.NonA
 {
     public class Interactable : NonActor
     {
+        public String dialog { get; set; }
+
         public Interactable(Texture2D texture, int rows, int columns, float x, float y, float width, float height) : 
             base(texture, rows, columns, x, y, width, height)
         {

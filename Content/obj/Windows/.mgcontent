@@ -7,5 +7,16 @@
     <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/background.png</File>
     <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/background_large.jpg</File>
     <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/TestFont.spritefont</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/interact.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/slope_down.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/slope_up.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/solid_tile.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/down_slope_slow_1.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/down_slope_slow_2.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/up_slope_slow_1.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/up_slope_slow_2.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/Exclamation_Point.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/dialogBox.png</File>
+    <File>C:/Users/Alex Campbell/Documents/Visual Studio 2013/Projects/PlatformerGame/PlatformerGame/Content/DialogFont.spritefont</File>
   </SourceFiles>
 </SourceFileCollection>

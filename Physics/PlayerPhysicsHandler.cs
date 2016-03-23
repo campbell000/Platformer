@@ -50,17 +50,12 @@ namespace PlatformerGame
                 player.jumpWasReleased = true;
             }
 
-            if (player.currInputState.jumpWasPressed())
-                Console.WriteLine("ASD");
-
             if (player.currInputState.jumpWasPressed() && !isInAir())
             {
                 player.vy = player.JUMP_FORCE;
                 player.isOnGround = false;
                 player.jumpWasReleased = false;
             }
-            else if (player.currInputState.jumpWasPressed())
-                Console.WriteLine("NOPE!");
 
             if (player.jumpWasReleased && isInAir() && player.vy < player.JUMP_FORCE/2)
             {
